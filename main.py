@@ -1,39 +1,23 @@
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import accuracy_score
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import accuracy_score
 
-# Folosim panda pentru citirea csv-ului si pentru a crea dataframe-uls
+train_data = pd.read_csv(r"NitroNLP/nitro-language-processing-2/train_data.csv")
+train_data['Final Labels']
 
-# Citirea datelor din fisierul csv si sapmpling-ul acestora
-file_read = pd.read_csv("NitroNLP/nitro-language-processing-2/train_data.csv")
-# Luam 100% din datele din csv, adica frac = 1
-dataframe = file_read.sample(frac = 1)
-# print(dataframe.to_string())
+vectorizer = CountVectorizer()
+X_train = vectorizer.fit_transform(train_data['Text'])
+y_train = train_data['Final Labels']
 
-# Preprocesare: eliminarea semnelor de punctuatie, spatii, transformarea in litere mici
-dataframe['Text'] = dataframe['Text'].str.replace('[^\w\s]', '', regex = True)
-dataframe['Text'] = dataframe['Text'].str.lower()
+clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-100, random_state=42, max_iter=2000, tol=None)
+clf.fit(X_train, y_train)
 
-text = dataframe['Text']
-label = dataframe['Final Labels']
+test_data = pd.read_csv("NitroNLP/nitro-language-processing-2/test_data.csv")
 
-print(label.value_counts())
+X_test = vectorizer.transform(test_data['Text'])
 
-# dataset_proportion = 0.25;
-#
-# text_train, text_test, label_train, label_test = train_test_split(text, label, test_size = dataset_proportion,
-#                                                                   shuffle = True, stratify = label)
-#
-# pipe = Pipeline(steps = [('vectorize', CountVectorizer(ngram_range = (1, 1), token_pattern = r'\b\w+\b')),
-#                          ('classifier', MultinomialNB())])
-# pipe.fit(text_train, label_train)
-#
-# label_predict = pipe.predict(text_test)
-#
-# print(f"Acuratete: ", accuracy_score(label_test, label_predict))
+predictions = clf.predict(X_test)
+
+submission = pd.DataFrame({'Id': test_data['Id'], 'Label': predictions})
+submission.to_csv('submission.csv', index=False)
