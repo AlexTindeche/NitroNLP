@@ -11,7 +11,7 @@ import seaborn as sns
 # Folosim panda pentru citirea csv-ului si pentru a crea dataframe-uls
 
 # Citirea datelor din fisierul csv si sapmpling-ul acestora
-file_read = pd.read_csv("nitro-language-processing-2/train_data.csv")
+file_read = pd.read_csv("NitroNLP/nitro-language-processing-2/train_data.csv")
 # Luam 100% din datele din csv, adica frac = 1
 dataframe = file_read.sample(frac = 1)
 # print(dataframe.to_string())
